@@ -9,9 +9,13 @@ import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.*
 import kotlinx.android.synthetic.main.option_picked_main.*
+import java.util.*
+import kotlin.concurrent.timerTask
 
 
-var currId = 0;
+var currId = 0
+
+
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -19,19 +23,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun changeTalho(view: View) {
-        currId = 1;
-        getCurrent();
-        getAverage();
+        currId = 1
+        getCurrent()
+        getAverage()
         getNext();
+        Timer().schedule(timerTask { getNext() ;
+                                    getCurrent();
+                                    getAverage();}
+                                    ,10000, 10000);
+
         setContentView(R.layout.option_picked_main)
     }
 
     fun changePeixaria(view: View) {
-        currId = 2;
-        getCurrent();
-        getAverage();
-        getNext();
-        setContentView(R.layout.option_picked_main)
+        currId = 2
+        getCurrent()
+        getAverage()
+        getNext()
+        Timer().schedule(timerTask { getNext() ;
+                                    getCurrent();
+                                    getAverage();}
+                                    ,10000, 10000);
+
+    setContentView(R.layout.option_picked_main)
     }
 
     fun getAverage() {
@@ -40,11 +54,11 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/getAverage?id=" + currId;
+        val url = "http://192.168.1.7:8080/getAverage?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
-                val value = roundUp (response.toInt());
-                averageTime.text = value;
+                val value = roundUp (response.toInt())
+                averageTime.text = value
             },
             Response.ErrorListener {
             })
@@ -57,7 +71,7 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/actualNum?id=" + currId;
+        val url = "http://192.168.1.7:8080/actualNum?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 actualNum.text = response.toString()
@@ -73,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/nextSenha?id=" + currId;
+        val url = "http://192.168.1.7:8080/nextSenha?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 nextSenha.text = response.toString()
@@ -89,13 +103,13 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/getNew?id=" + currId;
+        val url = "http://192.168.1.7:8080/getNew?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
-                buttonSenha.visibility = View.INVISIBLE;
+                buttonSenha.visibility = View.INVISIBLE
                 currSenha.text = response.toString()
-                headerSenha.visibility = View.VISIBLE;
-                currSenha.visibility = View.VISIBLE;
+                headerSenha.visibility = View.VISIBLE
+                currSenha.visibility = View.VISIBLE
             },
             Response.ErrorListener {
             })
@@ -106,14 +120,14 @@ class MainActivity : AppCompatActivity() {
 
 fun roundUp(response: Int): String {
     if(response < 60){
-        return "-1m";
+        return "-1m"
     }
     else if (response > 3600){
-        return "+1h";
+        return "+1h"
     }
     else{
-        val helper = response.div(60).toInt();
-        return "~" + helper.toString() + "m";
+        val helper = response.div(60).toInt()
+        return "~" + helper.toString() + "m"
     }
 }
 
