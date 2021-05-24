@@ -21,13 +21,34 @@ class MainActivity : AppCompatActivity() {
     fun changeTalho(view: View) {
         currId = 1;
         getCurrent();
+        getAverage();
+        getNext();
         setContentView(R.layout.option_picked_main)
     }
 
     fun changePeixaria(view: View) {
         currId = 2;
         getCurrent();
+        getAverage();
+        getNext();
         setContentView(R.layout.option_picked_main)
+    }
+
+    fun getAverage() {
+        val cache = DiskBasedCache(cacheDir, 1024 * 1024)
+        val network = BasicNetwork(HurlStack())
+        val requestQueue = RequestQueue(cache, network).apply {
+            start()
+        }
+        val url = "http://192.168.1.7:8080/getAverage?id=" + currId;
+        val stringRequest = StringRequest(Request.Method.GET, url,
+            Response.Listener<String> { response ->
+                val value = roundUp (response.toInt());
+                averageTime.text = value;
+            },
+            Response.ErrorListener {
+            })
+        requestQueue.add(stringRequest)
     }
 
     fun getCurrent() {
@@ -40,6 +61,22 @@ class MainActivity : AppCompatActivity() {
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 actualNum.text = response.toString()
+            },
+            Response.ErrorListener {
+            })
+        requestQueue.add(stringRequest)
+    }
+
+    fun getNext() {
+        val cache = DiskBasedCache(cacheDir, 1024 * 1024)
+        val network = BasicNetwork(HurlStack())
+        val requestQueue = RequestQueue(cache, network).apply {
+            start()
+        }
+        val url = "http://192.168.1.7:8080/nextSenha?id=" + currId;
+        val stringRequest = StringRequest(Request.Method.GET, url,
+            Response.Listener<String> { response ->
+                nextSenha.text = response.toString()
             },
             Response.ErrorListener {
             })
@@ -64,8 +101,21 @@ class MainActivity : AppCompatActivity() {
             })
         requestQueue.add(stringRequest)
     }
+
 }
 
+fun roundUp(response: Int): String {
+    if(response < 60){
+        return "-1m";
+    }
+    else if (response > 3600){
+        return "+1h";
+    }
+    else{
+        val helper = response.div(60).toInt();
+        return "~" + helper.toString() + "m";
+    }
+}
 
 
 
