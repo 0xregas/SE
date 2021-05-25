@@ -14,11 +14,12 @@ import kotlin.concurrent.timerTask
 
 
 var currId = 0
-
+var Ip= 0
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getIp()
         setContentView(R.layout.activity_main)
     }
 
@@ -26,11 +27,11 @@ class MainActivity : AppCompatActivity() {
         currId = 1
         getCurrent()
         getAverage()
-        getNext();
-        Timer().schedule(timerTask { getNext() ;
-                                    getCurrent();
-                                    getAverage();}
-                                    ,10000, 10000);
+        getNext()
+        Timer().schedule(timerTask { getNext()
+                                    getCurrent()
+                                    getAverage()}
+                                    ,10000, 10000)
 
         setContentView(R.layout.option_picked_main)
     }
@@ -40,10 +41,10 @@ class MainActivity : AppCompatActivity() {
         getCurrent()
         getAverage()
         getNext()
-        Timer().schedule(timerTask { getNext() ;
-                                    getCurrent();
-                                    getAverage();}
-                                    ,10000, 10000);
+        Timer().schedule(timerTask { getNext()
+                                    getCurrent()
+                                    getAverage()}
+                                    ,10000, 10000)
 
     setContentView(R.layout.option_picked_main)
     }
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/getAverage?id=" + currId
+        val url = "http://192.168.1."+Ip+":8080/getAverage?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 val value = roundUp (response.toInt())
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/actualNum?id=" + currId
+        val url = "http://192.168.1."+Ip+":8080/actualNum?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 actualNum.text = response.toString()
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/nextSenha?id=" + currId
+        val url = "http://192.168.1."+Ip+":8080/nextSenha?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 nextSenha.text = response.toString()
@@ -97,13 +98,33 @@ class MainActivity : AppCompatActivity() {
         requestQueue.add(stringRequest)
     }
 
+    fun getIp() {
+        val cache = DiskBasedCache(cacheDir, 1024 * 1024)
+        val network = BasicNetwork(HurlStack())
+        val requestQueue = RequestQueue(cache, network).apply {
+            start()
+        }
+        for (i in 0..9) {
+            val ipHelper = i + Ip
+            val url = "http://192.168.1."+ipHelper+":8080/checkIp"
+            val stringRequest = StringRequest(Request.Method.GET, url,
+                Response.Listener<String> { response ->
+                    if(response.toString().equals("true"))
+                        Ip = ipHelper
+                },
+                Response.ErrorListener {
+                })
+            requestQueue.add(stringRequest)
+        }
+    }
+
     fun getNew(view : View) {
         val cache = DiskBasedCache(cacheDir, 1024 * 1024)
         val network = BasicNetwork(HurlStack())
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        val url = "http://192.168.1.7:8080/getNew?id=" + currId
+        val url = "http://192.168.1."+Ip+":8080/getNew?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 buttonSenha.visibility = View.INVISIBLE
@@ -126,7 +147,7 @@ fun roundUp(response: Int): String {
         return "+1h"
     }
     else{
-        val helper = response.div(60).toInt()
+        val helper = response.div(60)
         return "~" + helper.toString() + "m"
     }
 }
