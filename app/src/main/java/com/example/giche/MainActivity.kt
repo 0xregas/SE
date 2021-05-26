@@ -16,8 +16,9 @@ import kotlin.concurrent.timerTask
 
 var currId = 0
 var Ip= 0
-var senha = "0"
-var tsenha = 0
+var senhaTalho = "-1"
+var senhaPeixe = "-1"
+var timer = Timer()
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,33 +28,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun changeToMain(){
+        timer.cancel()
         setContentView(R.layout.activity_main)
     }
 
     fun changeTalho(view: View) {
         currId = 1
-       changeToOptionPicked()
+        changeToOptionPicked()
+        if("-1".compareTo(senhaTalho) != 0)
+            getSenhaPressed()
     }
 
     fun changePeixaria(view: View) {
         currId = 2
         changeToOptionPicked()
+        if("-1".compareTo(senhaPeixe) != 0)
+            getSenhaPressed()
     }
 
-    fun changeToOptionPicked(){
-        getCurrent()
-        getAverage()
-        getNext()
-        Timer().schedule(timerTask { getNext()
-            getCurrent()
-            getAverage()}
-            ,10000, 10000)
+    fun changeToOptionPicked() {
+        timer = setTimer()
         setContentView(R.layout.option_picked_main)
-        val actionBar = getSupportActionBar()
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true)
-        }
+        getSupportActionBar()?.setDisplayHomeAsUpEnabled(true)
     }
+
+    fun setTimer() : Timer{
+        val timer = Timer()
+        timer.scheduleAtFixedRate(timerTask {
+            getNext()
+            getCurrent()
+            getAverage()
+        },0,10000)
+        return timer
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
@@ -91,6 +99,14 @@ class MainActivity : AppCompatActivity() {
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
                 actualNum.text = response.toString()
+                if(currId == 1) {
+                    if (response.toInt().compareTo(senhaTalho.toInt() + 1) == 0)
+                        enableGetSenha()
+                }
+                else{
+                    if (response.toInt().compareTo(senhaPeixe.toInt() + 1) == 0)
+                        enableGetSenha()
+                }
             },
             Response.ErrorListener {
             })
@@ -142,19 +158,38 @@ class MainActivity : AppCompatActivity() {
         val url = "http://192.168.1."+Ip+":8080/getNew?id=" + currId
         val stringRequest = StringRequest(Request.Method.GET, url,
             Response.Listener<String> { response ->
-                senha = response.toString()
-                tsenha = currId
-                newSenhaPress()
+                if(currId == 1)
+                    senhaTalho = response.toString()
+                else
+                    senhaPeixe = response.toString()
+                getSenhaPressed()
             },
             Response.ErrorListener {
             })
         requestQueue.add(stringRequest)
     }
 
-    fun newSenhaPress(){
+    fun getSenhaPressed(){
         buttonSenha.visibility = View.INVISIBLE
         headerSenha.visibility = View.VISIBLE
         currSenha.visibility = View.VISIBLE
+
+        if(currId == 1)
+            currSenha.text = senhaTalho
+        else
+            currSenha.text = senhaPeixe
+    }
+
+    fun enableGetSenha(){
+        headerSenha.visibility = View.INVISIBLE
+        currSenha.visibility = View.INVISIBLE
+        buttonSenha.visibility = View.VISIBLE
+        if(currId == 1) {
+            senhaTalho = "-1"
+        }
+        else {
+            senhaPeixe = "-1"
+        }
     }
 
 }
