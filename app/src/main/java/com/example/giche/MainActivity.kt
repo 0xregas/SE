@@ -37,10 +37,11 @@ class MainActivity : AppCompatActivity() {
     fun changeToMain(){
         timer.cancel()
         setContentView(R.layout.activity_main)
+        getSupportActionBar()?.setDisplayHomeAsUpEnabled(false)
     }
 
     // Changes the screen and sets the id to 1. If a ticket was already taken for that id, it also disables the button.
-    fun changeTalho() {
+    fun changeTalho(view: View) {
         currId = 1
         changeToOptionPicked()
         if("-1".compareTo(ticketTalho) != 0)
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Changes the screen and sets the id to 2. If a ticket was already taken for that id, it also disables the button.
-    fun changePeixaria() {
+    fun changePeixaria(view: View) {
         currId = 2
         changeToOptionPicked()
         if("-1".compareTo(ticketPeixe) != 0)
@@ -110,7 +111,7 @@ class MainActivity : AppCompatActivity() {
         val requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-        for (i in 0..9) {
+        for (i in 80..89) {
             val ipHelper = i + Ip
             val url = "http://192.168.1."+ipHelper+":8080/checkIp"
             val stringRequest = StringRequest(Request.Method.GET, url,
