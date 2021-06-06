@@ -39,7 +39,8 @@ void loop() {
     lcd.setCursor(0,1);
     String s = String(num);
     lcd.print(s);
+    Serial.println(num);
   }
-  Serial.println(currentState);
+  
   delay(1000);
 }
