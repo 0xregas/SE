@@ -185,7 +185,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Gets a ticket for the user.
-    fun getNew() {
+    fun getNew(view : View ) {
         val cache = DiskBasedCache(cacheDir, 1024 * 1024)
         val network = BasicNetwork(HurlStack())
         val requestQueue = RequestQueue(cache, network).apply {
